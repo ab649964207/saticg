@@ -1,17 +1,13 @@
-from ast import ClassDef
-from msilib.schema import Class
-from turtle import pos
+
 from subfile.PDDLGrammarLexer import PDDLGrammarLexer
 from subfile.PDDLGrammarParser import PDDLGrammarParser
+from subfile.MyVisitor import Item, MyVisitor
+from subfile.MyVisitor import game
+from subfile.opera import *
 
-from z3 import *
-from MyVisitor import Item, MyVisitor
-from MyVisitor import game
-from opera import *
 from antlr4 import *
+from z3 import *
 
-from copy import deepcopy as deepcopy
-from itertools import product
 
 
 # pddlFile =sys.argv[1] #由文件main.py输入路径
@@ -325,6 +321,28 @@ class GameClass:
                         else:
                             position[x][y][z] = False
             return position[v[0]][v[1]][v[2]]
+    def isIllegalState(self,*v):
+        if len(v)==1:
+            i=v[0]
+            for expression in self.NotConstraint:
+                if(eval(expression)):
+                    return True
+            return False
+        if len(v)==2:
+            i=v[0]  
+            j=v[1]
+            for expression in self.NotConstraint:
+                if(eval(expression)):
+                    return True
+            return False    
+        if len(v)==3:
+            i=v[0]  
+            j=v[1]
+            k=v[2]
+            for expression in self.NotConstraint:
+                if(eval(expression)):
+                    return True
+            return False 
     def generateWinSetandLoseSet(self):
         Game=self.Game
         TerminatePosition=self.TerminatePosition
@@ -332,6 +350,8 @@ class GameClass:
         winSet=[]
         if Game['var_num'] == 1:
             for i in range(0,10):
+                if(self.isIllegalState(i)):
+                    continue
                 if ([i] in TerminatePosition):
                         loseSet.append(i)
                         continue
@@ -341,12 +361,9 @@ class GameClass:
                     winSet.append(i)
         if Game['var_num'] == 2:
             print('teminate',TerminatePosition)
-            for i in range(0,3):
-                for j in range(0,3):
-                    for expression in self.NotConstraint:
-                        if(eval(expression)):
-                            print(i,j,'不是合法状态')
-                            continue
+            for i in range(0,10):
+                for j in range(0,10):
+                    if(self.isIllegalState(i,j)):
                         continue
                     if ([i,j] in TerminatePosition):
                         loseSet.append([i,j])
@@ -357,9 +374,11 @@ class GameClass:
                         winSet.append([i,j])
         if Game['var_num'] == 3:
             print('teminate',TerminatePosition)
-            for i in range(0,1):
-                for j in range(0,1):
-                    for k in range(0,1):
+            for i in range(0,5):
+                for j in range(0,5):
+                    for k in range(0,5):
+                        if(self.isIllegalState(i,j,k)):
+                            continue
                         if ([i,j,k] in TerminatePosition):
                             loseSet.append([i,j,k])
                             continue
@@ -367,29 +386,5 @@ class GameClass:
                             loseSet.append([i,j,k])
                         else:
                             winSet.append([i,j,k])
-        return [loseSet,winSet]
-
-pddlFile = r"domain\3.Welter\3.1 Welter Game\Welter(n=2).pddl"  # 执行单个pddl
-game_type = 'normal'   
-
-
-
-game = GameClass(pddlFile,game_type)
-
-print(game.NotConstraint)
-print(game.winSet)
-# print(str1[str1.find('X2 >=')+6])
-# print(str1[str1.find('X2 <=')+6])
-# print('-------------------')
-# print(game.winSet)
-# print(game.loseSet)
-expresionPool=['i<0', 'j<0', 'i==j']
-def isIllegalState(*v):
-    print(len(v))
-    i=v[0]
-    for expression in expresionPool:
-        if(eval(expression)):
-            return True
-    return False
-print(isIllegalState(1))
+        return [winSet,loseSet]
 

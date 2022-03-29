@@ -1,19 +1,20 @@
-from utlis.gameInit import *
+from gameInit import *
 import time
 import numpy
 
 start = time.time()
-pddlFile = r"domain\2.Nim\2.1 Nim\Three-piled-nim(v3-le-1).pddl"  # 执行单个pddl
+pddlFile = r"domain\3.Welter\3.1 Welter Game\Welter(n=2).pddl"  # 执行单个pddl
 game_type = 'normal'   
-
 
 
 game = GameClass(pddlFile,game_type)
 Game=game.Game
+print(game.winSet)
+print(game.loseSet)
 winSet=game.winSet
 loseSet=game.loseSet
-print(winSet)
-start=time.time()
+
+
 featurePool=[]
 
 def generateFeaturePool():
@@ -70,7 +71,7 @@ print(winfeatures)
 print(losefeatures)
 
 # Compare the selected features to check if they satisfy the fourth constraint
-def isConstraintChenk(*v):
+def isConstraintCheck(*v):
     i1=v[0]-1
     # print(featurePool[i1])
     if(len(v)==1):
@@ -93,6 +94,15 @@ def isConstraintChenk(*v):
         for i in range(0,lenwinset):
             for j in range(0,lenloseset):
                 if((winfeatures[i][i1]^losefeatures[j][i1]) + (winfeatures[i][i2]^losefeatures[j][i2]) + (winfeatures[i][i3]^losefeatures[j][i3])==0):
+                    return False
+    if(len(v)==4):
+        i2=v[1]-1
+        i3=v[2]-1
+        i4=v[3]-1
+
+        for i in range(0,lenwinset):
+            for j in range(0,lenloseset):
+                if((winfeatures[i][i1]^losefeatures[j][i1]) + (winfeatures[i][i2]^losefeatures[j][i2]) + (winfeatures[i][i3]^losefeatures[j][i3])+ (winfeatures[i][i4]^losefeatures[j][i4])==0):
                     return False
     return True
 
@@ -164,7 +174,7 @@ def generateExpression(*v):
 
 def main():  
     for i in range (1,lenfeaturesPool+1):
-        if(isConstraintChenk(i)):
+        if(isConstraintCheck(i)):
             print('slected features:',featurePool[i-1])
             generateExpression(i)
             return
@@ -173,7 +183,7 @@ def main():
         for j in range (i+1,lenfeaturesPool+1):
             if(i==j):
                 continue
-            if(isConstraintChenk(i,j)):
+            if(isConstraintCheck(i,j)):
                 print('slected features:',featurePool[i-1],featurePool[j-1])
                 generateExpression(i,j)
                 return
@@ -183,11 +193,19 @@ def main():
             for k in range (j+1,lenfeaturesPool+1):
                 if(i==j or i==k or j==k):
                     continue
-                if(isConstraintChenk(i,j,k)):
+                if(isConstraintCheck(i,j,k)):
                     print('slected features:',featurePool[i-1],featurePool[j-1],featurePool[k-1])
                     generateExpression(i,j,k)
                     return
-
-# main()
+    print('3done')
+    for i in range (1,lenfeaturesPool+1):
+        for j in range (i+1,lenfeaturesPool+1):
+            for k in range (j+1,lenfeaturesPool+1):
+                for l in range (k+1,lenfeaturesPool+1):
+                    if(isConstraintCheck(i,j,k,l)):
+                        print('slected features:',featurePool[i-1],featurePool[j-1],featurePool[k-1])
+                        # generateExpression(i,j,k)
+                        return  
+main()
 
 # print('winning formula generate time cost',round((time.time() - start),3))
