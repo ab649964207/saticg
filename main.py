@@ -3,7 +3,7 @@ import time
 import numpy
 
 start = time.time()
-pddlFile = r"domain\3.Welter\3.1 Welter Game\Welter(n=2).pddl"  # 执行单个pddl
+pddlFile = r"domain\5.Chomp\5.1 Chomp game\Chomp-Game-3-rowed-(v3--1)).pddl"  # 执行单个pddl
 game_type = 'normal'   
 
 
@@ -11,9 +11,12 @@ game = GameClass(pddlFile,game_type)
 Game=game.Game
 print(game.winSet)
 print(game.loseSet)
-winSet=game.winSet
-loseSet=game.loseSet
 
+# winSet=game.winSet
+# loseSet=game.loseSet
+
+loseSet=game.winSet
+winSet=game.loseSet
 
 featurePool=[]
 
@@ -36,6 +39,8 @@ def generateFeaturePool():
 generateFeaturePool()
 lenwinset=len(winSet)
 lenloseset=len(loseSet)
+
+
 lenfeaturesPool=len(featurePool)
 # Initialize the array to store all boolean values at each position
 winfeatures=numpy.zeros((lenwinset,lenfeaturesPool),dtype = int)
@@ -99,10 +104,23 @@ def isConstraintCheck(*v):
         i2=v[1]-1
         i3=v[2]-1
         i4=v[3]-1
+        # print(i1,i2,i3,i4)0
 
         for i in range(0,lenwinset):
             for j in range(0,lenloseset):
                 if((winfeatures[i][i1]^losefeatures[j][i1]) + (winfeatures[i][i2]^losefeatures[j][i2]) + (winfeatures[i][i3]^losefeatures[j][i3])+ (winfeatures[i][i4]^losefeatures[j][i4])==0):
+                    return False
+    
+    if(len(v)==5):
+        i2=v[1]-1
+        i3=v[2]-1
+        i4=v[3]-1
+        i5=v[4]-1
+
+        print(i1,i2,i3,i4,i5)
+        for i in range(0,lenwinset):
+            for j in range(0,lenloseset):
+                if((winfeatures[i][i1]^losefeatures[j][i1]) + (winfeatures[i][i2]^losefeatures[j][i2]) + (winfeatures[i][i3]^losefeatures[j][i3])+ (winfeatures[i][i4]^losefeatures[j][i4])+ (winfeatures[i][i5]^losefeatures[j][i5])==0):
                     return False
     return True
 
@@ -170,7 +188,82 @@ def generateExpression(*v):
                 result = result+' Or '
         print('winning formula:',result)
         return result      
+    if(len(v)==4):
+        tempset=[]
+        i2=v[1]-1
+        i3=v[2]-1
+        i4=v[3]-1
+        for i in range(0,lenwinset):
+            temp = [winfeatures[i][i1],winfeatures[i][i2],winfeatures[i][i3],winfeatures[i][i4]]
+            if(temp not in tempset):
+                tempset.append(temp)   
+        print('bool conditions of selected features:',tempset)  
+        result=''
+        for i in range(0,len(tempset)):
+            if(tempset[i][0]==1):
+                tempstr = '( '+ featurePool[i1] +' And '
+            else:
+                tempstr = '( Not('+featurePool[i1] +') And '
+            if(tempset[i][1]==1):
+                tempstr = tempstr + featurePool[i2] +' And '
+            else:
+                tempstr = tempstr +'Not('+ featurePool[i2] +') And '
+            if(tempset[i][2]==1):
+                tempstr = tempstr + featurePool[i3] +' And '
+            else:
+                tempstr = tempstr +'Not('+ featurePool[i3] +') And '
+            if(tempset[i][3]==1):
+                tempstr = tempstr + featurePool[i4] +')'
+            else:
+                tempstr = tempstr +'Not('+ featurePool[i4] +'))'
+            
 
+            result = result+tempstr
+            if i<len(tempset)-1:
+                result = result+' Or '
+        print('winning formula:',result)
+        return result 
+    if(len(v)==5):
+        tempset=[]
+        i2=v[1]-1
+        i3=v[2]-1
+        i4=v[3]-1
+        i5=v[4]-1
+
+        for i in range(0,lenwinset):
+            temp = [winfeatures[i][i1],winfeatures[i][i2],winfeatures[i][i3],winfeatures[i][i4],winfeatures[i][i5]]
+            if(temp not in tempset):
+                tempset.append(temp)   
+        print('bool conditions of selected features:',tempset)  
+        result=''
+        for i in range(0,len(tempset)):
+            if(tempset[i][0]==1):
+                tempstr = '( '+ featurePool[i1] +' And '
+            else:
+                tempstr = '( Not('+featurePool[i1] +') And '
+            if(tempset[i][1]==1):
+                tempstr = tempstr + featurePool[i2] +' And '
+            else:
+                tempstr = tempstr +'Not('+ featurePool[i2] +') And '
+            if(tempset[i][2]==1):
+                tempstr = tempstr + featurePool[i3] +' And '
+            else:
+                tempstr = tempstr +'Not('+ featurePool[i3] +') And '
+            if(tempset[i][3]==1):
+                tempstr = tempstr + featurePool[i4] +' And '
+            else:
+                tempstr = tempstr +'Not('+ featurePool[i4] +') And '
+            if(tempset[i][4]==1):
+                tempstr = tempstr + featurePool[i5] +')'
+            else:
+                tempstr = tempstr +'Not('+ featurePool[i5] +'))'
+            
+
+            result = result+tempstr
+            if i<len(tempset)-1:
+                result = result+' Or '
+        print('winning formula:',result)
+        return result 
 
 def main():  
     for i in range (1,lenfeaturesPool+1):
@@ -178,7 +271,7 @@ def main():
             print('slected features:',featurePool[i-1])
             generateExpression(i)
             return
-    print('1done')
+    print('特征数量为1没有找到解')
     for i in range (1,lenfeaturesPool+1):
         for j in range (i+1,lenfeaturesPool+1):
             if(i==j):
@@ -187,7 +280,7 @@ def main():
                 print('slected features:',featurePool[i-1],featurePool[j-1])
                 generateExpression(i,j)
                 return
-    print('2done')
+    print('特征数量为2没有找到解')
     for i in range (1,lenfeaturesPool+1):
         for j in range (i+1,lenfeaturesPool+1):
             for k in range (j+1,lenfeaturesPool+1):
@@ -197,15 +290,33 @@ def main():
                     print('slected features:',featurePool[i-1],featurePool[j-1],featurePool[k-1])
                     generateExpression(i,j,k)
                     return
-    print('3done')
+    print('特征数量为3没有找到解')
     for i in range (1,lenfeaturesPool+1):
         for j in range (i+1,lenfeaturesPool+1):
             for k in range (j+1,lenfeaturesPool+1):
                 for l in range (k+1,lenfeaturesPool+1):
                     if(isConstraintCheck(i,j,k,l)):
-                        print('slected features:',featurePool[i-1],featurePool[j-1],featurePool[k-1])
-                        # generateExpression(i,j,k)
-                        return  
+                        print('slected features:',featurePool[i-1],featurePool[j-1],featurePool[k-1],featurePool[l-1])
+                        generateExpression(i,j,k,l)
+                        return 
+    print('特征数量为4没有找到解') 
+    # for i in range (1,lenfeaturesPool+1):
+    #     for j in range (i+1,lenfeaturesPool+1):
+    #         for k in range (j+1,lenfeaturesPool+1):
+    #             for l in range (k+1,lenfeaturesPool+1):
+    #                 for m in range (l+1,lenfeaturesPool+1):
+    #                     if(isConstraintCheck(i,j,k,l,m)):
+    #                         print('slected features:',featurePool[i-1],featurePool[j-1],featurePool[k-1],featurePool[l-1],featurePool[m-1])
+    #                         generateExpression(i,j,k,l,m)
+    #                         return 
+    # print('特征数量为5没有找到解')        
+start = time.time()
+
 main()
 
-# print('winning formula generate time cost',round((time.time() - start),3))
+print('winning formula generate time cost',round((time.time() - start),3)) 
+
+
+
+
+

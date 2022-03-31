@@ -146,9 +146,7 @@ class GameClass:
                     s.add(X != i[0])
                 if(s.check() == sat):
                     m = s.model()
-                    print(m[X])
                     a = m[X].as_long()
-                    print('aaaaaaaaaaaaaaaaaaaaaaaaaaaaa:',a)
                     TerminatePosition.append([a])
                     if Game["type"] == "normal":
                         position[a] = True  # normal
@@ -163,7 +161,6 @@ class GameClass:
                 if s.check() == sat:
                     m = s.model()
                     a = m[X].as_long()
-                    print('aaaaaaaaaaaaaaaaaaaaaaaaaaaaa:',a)
                     b = m[X1].as_long()
                     TerminatePosition.append([a, b])
                     if(Game["type"] == "normal"):
@@ -262,7 +259,6 @@ class GameClass:
                             temp.append([m[Y].as_long(), m[Y1].as_long()])  # 全局转移解
                         else:
                             break
-                    # print('Transilate 773 of',x,y,":\t",temp) #存放状态 438 [[2, 1], [2, 0], [1, 1]]
                     is_losing = True
                     s = Solver()
                     s.add(Game["Constraint"])
@@ -278,7 +274,7 @@ class GameClass:
                         position[x][y] = True
                     else:
                         position[x][y] = False
-            # print("判断出给定的表达式：",v,"is",position[v[0]][v[1]])
+
             return position[v[0]][v[1]]
         elif len(v) == 3:
             if position[v[0]][v[1]][v[2]] != 'illegal':  # 已经访问过了的，直接访问值，没有的
@@ -361,7 +357,7 @@ class GameClass:
                     winSet.append(i)
         if Game['var_num'] == 2:
             print('teminate',TerminatePosition)
-            for i in range(0,10):
+            for i in range(0,20):
                 for j in range(0,10):
                     if(self.isIllegalState(i,j)):
                         continue
@@ -374,9 +370,9 @@ class GameClass:
                         winSet.append([i,j])
         if Game['var_num'] == 3:
             print('teminate',TerminatePosition)
-            for i in range(0,5):
-                for j in range(0,5):
-                    for k in range(0,5):
+            for i in range(0,8):
+                for j in range(0,8):
+                    for k in range(0,8):
                         if(self.isIllegalState(i,j,k)):
                             continue
                         if ([i,j,k] in TerminatePosition):
